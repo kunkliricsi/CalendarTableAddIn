@@ -3,3 +3,4 @@ packages/
 bin/
 obj/
 app.config
+delete_api_key.sh

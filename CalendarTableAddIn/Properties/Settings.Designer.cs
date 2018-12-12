@@ -25,7 +25,7 @@ namespace CalendarTableAddIn.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("YOUR_API_K EY_GOES_HERE")]
+        [global::System.Configuration.DefaultSettingValueAttribute("YOUR_API_KEY_GOES_HERE")]
         public string ApiKey {
             get {
                 return ((string)(this["ApiKey"]));
