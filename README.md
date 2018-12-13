@@ -1,4 +1,4 @@
-# CalendarTableAddIn
+# Calendar Table Add In
 
 An Outlook Add In that inserts a calendar into the mail. The calendar is basically a table that holds the current month's workday and holiday information.
 
