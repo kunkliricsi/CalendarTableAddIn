@@ -2,5 +2,4 @@
 packages/
 bin/
 obj/
-app.config
 *.sh
