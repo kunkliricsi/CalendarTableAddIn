@@ -61,7 +61,8 @@ namespace CalendarTableAddIn
             try
             {
                 googleCalendarUpdateTask = GoogleCalendar.UpdateWorkdaysAsync();
-                 this.Table = this.Document.Tables.Add(
+
+                this.Table = this.Document.Tables.Add(
                     this.Range,
                     this.Rows,
                     this.Columns);
@@ -138,9 +139,22 @@ namespace CalendarTableAddIn
                         this.Table.Cell(r, c).Range.Font.Color = Word.WdColor.wdColorGray25;
                     }
 
-                    if (day == days) return;
+                    if (day == days)
+                    {
+                        DeleteEmptyRows(r);
+                        return;
+                    }
+
                     day++;
                 }           
+        }
+
+        private void DeleteEmptyRows(int fromRow)
+        {
+            for (int i = fromRow + 1; i <= this.Rows; i++)
+                this.Table.Rows[i].Delete();
+
+            this.Rows = fromRow;
         }
 
         private async Task FillGoogleWorkdays()

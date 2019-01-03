@@ -34,56 +34,56 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.tab1 = this.Factory.CreateRibbonTab();
-            this.group1 = this.Factory.CreateRibbonGroup();
-            this.button1 = this.Factory.CreateRibbonButton();
-            this.tab1.SuspendLayout();
-            this.group1.SuspendLayout();
+            this.TabInsertCalendarTable = this.Factory.CreateRibbonTab();
+            this.GroupInsertCalendarTables = this.Factory.CreateRibbonGroup();
+            this.ButtonInsertCalendarTable = this.Factory.CreateRibbonButton();
+            this.TabInsertCalendarTable.SuspendLayout();
+            this.GroupInsertCalendarTables.SuspendLayout();
             this.SuspendLayout();
             // 
-            // tab1
+            // TabInsertCalendarTable
             // 
-            this.tab1.ControlId.ControlIdType = Microsoft.Office.Tools.Ribbon.RibbonControlIdType.Office;
-            this.tab1.ControlId.OfficeId = "TabInsert";
-            this.tab1.Groups.Add(this.group1);
-            this.tab1.Label = "TabInsert";
-            this.tab1.Name = "tab1";
+            this.TabInsertCalendarTable.ControlId.ControlIdType = Microsoft.Office.Tools.Ribbon.RibbonControlIdType.Office;
+            this.TabInsertCalendarTable.ControlId.OfficeId = "TabInsert";
+            this.TabInsertCalendarTable.Groups.Add(this.GroupInsertCalendarTables);
+            this.TabInsertCalendarTable.Label = "TabInsert";
+            this.TabInsertCalendarTable.Name = "TabInsertCalendarTable";
             // 
-            // group1
+            // GroupInsertCalendarTables
             // 
-            this.group1.Items.Add(this.button1);
-            this.group1.Label = "Add Ins";
-            this.group1.Name = "group1";
-            this.group1.Position = this.Factory.RibbonPosition.AfterOfficeId("GroupInsertTables");
+            this.GroupInsertCalendarTables.Items.Add(this.ButtonInsertCalendarTable);
+            this.GroupInsertCalendarTables.Label = "Add Ins";
+            this.GroupInsertCalendarTables.Name = "GroupInsertCalendarTables";
+            this.GroupInsertCalendarTables.Position = this.Factory.RibbonPosition.AfterOfficeId("GroupInsertTables");
             // 
-            // button1
+            // ButtonInsertCalendarTable
             // 
-            this.button1.ControlSize = Microsoft.Office.Core.RibbonControlSize.RibbonControlSizeLarge;
-            this.button1.Image = global::CalendarTableAddIn.Properties.Resources.icon;
-            this.button1.Label = "Calendar Table";
-            this.button1.Name = "button1";
-            this.button1.ShowImage = true;
-            this.button1.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.button1_Click);
+            this.ButtonInsertCalendarTable.ControlSize = Microsoft.Office.Core.RibbonControlSize.RibbonControlSizeLarge;
+            this.ButtonInsertCalendarTable.Image = global::CalendarTableAddIn.Properties.Resources.icon;
+            this.ButtonInsertCalendarTable.Label = "Calendar Table";
+            this.ButtonInsertCalendarTable.Name = "ButtonInsertCalendarTable";
+            this.ButtonInsertCalendarTable.ShowImage = true;
+            this.ButtonInsertCalendarTable.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.button1_Click);
             // 
             // Ribbon
             // 
             this.Name = "Ribbon";
             this.RibbonType = "Microsoft.Outlook.Mail.Compose";
-            this.Tabs.Add(this.tab1);
+            this.Tabs.Add(this.TabInsertCalendarTable);
             this.Load += new Microsoft.Office.Tools.Ribbon.RibbonUIEventHandler(this.Ribbon_Load);
-            this.tab1.ResumeLayout(false);
-            this.tab1.PerformLayout();
-            this.group1.ResumeLayout(false);
-            this.group1.PerformLayout();
+            this.TabInsertCalendarTable.ResumeLayout(false);
+            this.TabInsertCalendarTable.PerformLayout();
+            this.GroupInsertCalendarTables.ResumeLayout(false);
+            this.GroupInsertCalendarTables.PerformLayout();
             this.ResumeLayout(false);
 
         }
 
         #endregion
 
-        internal Microsoft.Office.Tools.Ribbon.RibbonTab tab1;
-        internal Microsoft.Office.Tools.Ribbon.RibbonGroup group1;
-        internal Microsoft.Office.Tools.Ribbon.RibbonButton button1;
+        internal Microsoft.Office.Tools.Ribbon.RibbonTab TabInsertCalendarTable;
+        internal Microsoft.Office.Tools.Ribbon.RibbonGroup GroupInsertCalendarTables;
+        internal Microsoft.Office.Tools.Ribbon.RibbonButton ButtonInsertCalendarTable;
     }
 
     partial class ThisRibbonCollection
