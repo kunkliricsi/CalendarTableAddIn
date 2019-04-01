@@ -29,14 +29,11 @@ namespace CalendarTableAddIn
             }
         }
 
-        private Dictionary<int, (int row, int column)> DaysToCells { get; set; }
+        private Dictionary<DateTime, (int row, int column)> DaysToCells { get; set; }
         
-        private Task googleCalendarUpdateTask;
-
-
         public CalendarTable(Word.Document document, Word.Range range)
         {
-            this.DaysToCells = new Dictionary<int, (int, int)>();
+            this.DaysToCells = new Dictionary<DateTime, (int, int)>();
 
             this.Document = document;
             this.Range = range;
@@ -60,8 +57,6 @@ namespace CalendarTableAddIn
         {
             try
             {
-                googleCalendarUpdateTask = GoogleCalendar.UpdateWorkdaysAsync();
-
                 this.Table = this.Document.Tables.Add(
                     this.Range,
                     this.Rows,
@@ -72,9 +67,11 @@ namespace CalendarTableAddIn
                 this.MakeFirstRow();
                 this.MakeSecondRow();
 
-                this.FillTable();
+                var lastDay = this.FillTable();
+                var firstDay = DaysToCells.First().Key;
+                var calendarUpdateTask = GoogleCalendar.UpdateWorkdaysAsync(firstDay, lastDay.Value);
 
-                Task.Run(async () => await FillGoogleWorkdays());
+                Task.Run(async () => FillGoogleWorkdays(await calendarUpdateTask));
                 
                 this.SetBorders(this.Table);
                 
@@ -117,36 +114,49 @@ namespace CalendarTableAddIn
             this.Table.Cell(2, 7).Range.Text = "Sz";
         }
 
-        private void FillTable()
+        // Returns the last day in the table.
+        private DateTime? FillTable()
         {
             var now = DateTime.Now;
-            var days = DateTime.DaysInMonth(now.Year, now.Month);
+
             var firstDay = new DateTime(now.Year, now.Month, 1);
             var firstDayName = firstDay.ToString("dddd");
             var firstDayToFillFrom = this.SetFirstDayToFillFrom(firstDayName);
-            var day = 1;
+
+            var day = firstDay.AddDays(-1);
+            var firstDayOfNextMonth = firstDay.AddMonths(1);
+
+            var currentMonthEnded = false;
 
             for (int r = 3; r <= this.Rows; r++)
+            {
                 for (int c = r == 3 ? firstDayToFillFrom : 1; c <= this.Columns; c++)
                 {
-                    this.DaysToCells.Add(day, (r, c));
-                    this.Table.Cell(r, c).Range.Text = day.ToString();
+                    day = day.AddDays(1);
 
-                    var date = new DateTime(now.Year, now.Month, day);
-                    if (DateSystem.IsWeekend(date, CountryCode.HU) || 
-                        DateSystem.IsPublicHoliday(date, CountryCode.HU))
+                    this.DaysToCells.Add(day, (r, c));
+                    this.Table.Cell(r, c).Range.Text = day.Day.ToString();
+
+                    if (DateSystem.IsWeekend(day, CountryCode.HU) || 
+                        DateSystem.IsPublicHoliday(day, CountryCode.HU))
                     {
                         this.Table.Cell(r, c).Range.Font.Color = Word.WdColor.wdColorGray25;
                     }
 
-                    if (day == days)
+                    if (!currentMonthEnded && day >= firstDayOfNextMonth)
                     {
-                        DeleteEmptyRows(r);
-                        return;
+                        currentMonthEnded = true;
                     }
+                }    
+                
+                if (currentMonthEnded)
+                {
+                    DeleteEmptyRows(r);
+                    return day;
+                }
+            }
 
-                    day++;
-                }           
+            return null;
         }
 
         private void DeleteEmptyRows(int fromRow)
@@ -157,19 +167,17 @@ namespace CalendarTableAddIn
             this.Rows = fromRow;
         }
 
-        private async Task FillGoogleWorkdays()
+        private void FillGoogleWorkdays(GoogleCalendarUpdateResult calendarUpdateResult)
         {
-            await googleCalendarUpdateTask;
-
             // Updating Holidays in Table
-            foreach (var day in GoogleCalendar.Holidays)
+            foreach (var day in calendarUpdateResult.holidays)
             {
                 var pair = DaysToCells[day];
                 this.Table.Cell(pair.row, pair.column).Range.Font.Color = Word.WdColor.wdColorGray25;
             }
 
             // Updating Workdays in Table
-            foreach (var day in GoogleCalendar.Workdays)
+            foreach (var day in calendarUpdateResult.workdays)
             {
                 var pair = DaysToCells[day];
                 this.Table.Cell(pair.row, pair.column).Range.Font.Color = Word.WdColor.wdColorBlack;

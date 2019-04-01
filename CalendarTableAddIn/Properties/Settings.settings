@@ -3,7 +3,7 @@
   <Profiles />
   <Settings>
     <Setting Name="ApiKey" Type="System.String" Scope="User">
-      <Value Profile="(Default)">YOUR_API_K EY_GOES_HERE</Value>
+      <Value Profile="(Default)">YOUR_API_KEY_GOES_HERE</Value>
     </Setting>
   </Settings>
 </SettingsFile>

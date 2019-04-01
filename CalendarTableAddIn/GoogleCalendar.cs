@@ -5,6 +5,7 @@ using Google.Apis.Services;
 using Google.Apis.Util.Store;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -13,50 +14,22 @@ using System.Threading.Tasks;
 
 namespace CalendarTableAddIn
 {
+    public class GoogleCalendarUpdateResult
+    {
+        public List<DateTime> holidays { get; set; } = new List<DateTime>();
+        public List<DateTime> workdays { get; set; } = new List<DateTime>();
+    }
+
     public static class GoogleCalendar
     {
-        private static bool initialized = false;
-        private static List<int> holidays = new List<int>();
-        private static List<int> workdays = new List<int>();
-        public static List<int> Holidays
-        {
-            get
-            {
-                if (!initialized) throw new Exception("GoogleCalendar has not been initialized");
-
-                return holidays;
-            }
-        }
-
-        public static List<int> Workdays
-        {
-            get
-            {
-                if (!initialized) throw new Exception("GoogleCalendar has not been initialized");
-
-                return workdays;
-            }
-        }
-
-        public static bool IsWorkday(int day)
-        {
-            return Workdays.Contains(day);
-        }
-
-        public static bool IsHoliday(int day)
-        {
-            return Holidays.Contains(day);
-        }
-
         static string[] Scopes = { CalendarService.Scope.CalendarReadonly };
         static string ApplicationName = "Calendar Table API";
 
-        public static async Task UpdateWorkdaysAsync()
+        public static async Task<GoogleCalendarUpdateResult> UpdateWorkdaysAsync(DateTime from, DateTime to)
         {
-            await Task.Run(() =>
+            return await Task.Run(() =>
             {
-                if (initialized)
-                    return;
+               var result = new GoogleCalendarUpdateResult();
 
                 // Create Google Calendar API service.
                 var service = new CalendarService(new BaseClientService.Initializer()
@@ -69,13 +42,10 @@ namespace CalendarTableAddIn
                 EventsResource.ListRequest request = service.Events.List("en.hungarian#holiday@group.v.calendar.google.com");
 
                 // Make TimeMin point to first day of current month.
-                var now = DateTime.Now;
-                var start = new DateTime(now.Year, now.Month, 1);
-                request.TimeMin = start;
+                request.TimeMin = from;
 
                 // Make TimeMax point to last day of current month.
-                var end = new DateTime(now.Year, now.Month, DateTime.DaysInMonth(now.Year, now.Month));
-                request.TimeMax = end;
+                request.TimeMax = to;
 
                 // List events.
                 Events events = request.Execute();
@@ -88,20 +58,34 @@ namespace CalendarTableAddIn
                         {
                             try
                             {
-                                string[] summary = eventItem.Summary.Split(' ');
+                                if (eventItem.Start.DateTime.HasValue)
+                                {
+                                    var eventDate = eventItem.Start.DateTime.Value;
 
-                                // This gets the '15' from the above summary example.
-                                holidays.Add(int.Parse(summary.Last()));
+                                    var summary = eventItem.Summary.Split(' ');
 
-                                // This gets the date's day eg. '2018-12-15' to '15'
-                                workdays.Add(int.Parse(eventItem.Start.Date.Split('-').Last()));
+                                    var monthName = summary.ElementAt(summary.Length - 1);
+                                    var month = DateTime.ParseExact(monthName, "MMMM", CultureInfo.CurrentCulture).Month; // This converts December to 12
+                                    var day = int.Parse(summary.Last()); // This gets the '15' from the summary.
+                                    var holiday = new DateTime(eventDate.Year, month, day);
+
+                                    if (eventDate > holiday)
+                                    {
+                                        holiday.AddYears(1);
+                                    }
+                                    
+                                    result.holidays.Add(holiday);
+
+                                    // Adding the eventDay because its a workday.
+                                    result.workdays.Add(eventDate);
+                                }
                             }
                             catch { }
                         }
                     }
                 }
 
-                initialized = true;
+                return result;
             });
         }
     }
