@@ -67,11 +67,12 @@ namespace CalendarTableAddIn
                 this.MakeFirstRow();
                 this.MakeSecondRow();
 
-                var lastDay = this.FillTable();
-                var firstDay = DaysToCells.First().Key;
-                var calendarUpdateTask = GoogleCalendar.UpdateWorkdaysAsync(firstDay, lastDay.Value);
-
-                Task.Run(async () => FillGoogleWorkdays(await calendarUpdateTask));
+                this.FillTable();
+                
+                Task.Run(async () => FillGoogleWorkdays(
+                    await GoogleCalendar.UpdateWorkdaysAsync(
+                        DaysToCells.First().Key,
+                        DaysToCells.Last().Key)));
                 
                 this.SetBorders(this.Table);
                 
@@ -115,7 +116,7 @@ namespace CalendarTableAddIn
         }
 
         // Returns the last day in the table.
-        private DateTime? FillTable()
+        private void FillTable()
         {
             var now = DateTime.Now;
 
@@ -123,14 +124,14 @@ namespace CalendarTableAddIn
             var firstDayName = firstDay.ToString("dddd");
             var firstDayToFillFrom = this.SetFirstDayToFillFrom(firstDayName);
 
-            var day = firstDay.AddDays(-1);
+            var day = firstDay.AddDays(-firstDayToFillFrom);
             var firstDayOfNextMonth = firstDay.AddMonths(1);
 
             var currentMonthEnded = false;
 
             for (int r = 3; r <= this.Rows; r++)
             {
-                for (int c = r == 3 ? firstDayToFillFrom : 1; c <= this.Columns; c++)
+                for (int c = 1; c <= this.Columns; c++)
                 {
                     day = day.AddDays(1);
 
@@ -152,11 +153,9 @@ namespace CalendarTableAddIn
                 if (currentMonthEnded)
                 {
                     DeleteEmptyRows(r);
-                    return day;
+                    return;
                 }
             }
-
-            return null;
         }
 
         private void DeleteEmptyRows(int fromRow)
