@@ -21,13 +21,7 @@ namespace CalendarTableAddIn
 
         private Random Random { get; set; }
         private HashSet<Word.WdColor> TopRowColors { get; set; }
-        private Word.WdColor RandomColor
-        {
-            get
-            {
-                return TopRowColors.ElementAt(Random.Next(TopRowColors.Count));
-            }
-        }
+        private Word.WdColor RandomColor => TopRowColors.ElementAt(Random.Next(TopRowColors.Count));
 
         private Dictionary<DateTime, (int row, int column)> DaysToCells { get; set; }
         
@@ -121,11 +115,15 @@ namespace CalendarTableAddIn
             var now = DateTime.Now;
 
             var firstDay = new DateTime(now.Year, now.Month, 1);
-            var firstDayName = firstDay.ToString("dddd");
-            var firstDayToFillFrom = this.SetFirstDayToFillFrom(firstDayName);
+            var daysToRemoveFromFirstDay = this.GetDaysToRemove(firstDay);
 
-            var day = firstDay.AddDays(-firstDayToFillFrom);
+            var currentDay = firstDay.AddDays(-daysToRemoveFromFirstDay);
             var firstDayOfNextMonth = firstDay.AddMonths(1);
+            var daysToRemoveFromLastDay = this.GetDaysToRemove(firstDayOfNextMonth);
+            if (daysToRemoveFromLastDay <= 2)
+            {
+                firstDayOfNextMonth = firstDayOfNextMonth.AddDays(-daysToRemoveFromLastDay);
+            }
 
             var currentMonthEnded = false;
 
@@ -133,18 +131,18 @@ namespace CalendarTableAddIn
             {
                 for (int c = 1; c <= this.Columns; c++)
                 {
-                    day = day.AddDays(1);
+                    currentDay = currentDay.AddDays(1);
 
-                    this.DaysToCells.Add(day, (r, c));
-                    this.Table.Cell(r, c).Range.Text = day.Day.ToString();
+                    this.DaysToCells.Add(currentDay, (r, c));
+                    this.Table.Cell(r, c).Range.Text = currentDay.Day.ToString();
 
-                    if (DateSystem.IsWeekend(day, CountryCode.HU) || 
-                        DateSystem.IsPublicHoliday(day, CountryCode.HU))
+                    if (DateSystem.IsWeekend(currentDay, CountryCode.HU) || 
+                        DateSystem.IsPublicHoliday(currentDay, CountryCode.HU))
                     {
                         this.Table.Cell(r, c).Range.Font.Color = Word.WdColor.wdColorGray25;
                     }
 
-                    if (!currentMonthEnded && day >= firstDayOfNextMonth)
+                    if (!currentMonthEnded && currentDay >= firstDayOfNextMonth)
                     {
                         currentMonthEnded = true;
                     }
@@ -160,10 +158,17 @@ namespace CalendarTableAddIn
 
         private void DeleteEmptyRows(int fromRow)
         {
-            for (int i = fromRow + 1; i <= this.Rows; i++)
+            for (int i = this.Rows; i > fromRow; i--)
                 this.Table.Rows[i].Delete();
 
             this.Rows = fromRow;
+        }
+
+        private int GetDaysToRemove(DateTime date)
+        {
+            var dayOfWeek = (int)date.DayOfWeek;
+
+            return dayOfWeek == 6 ? 0 : ++dayOfWeek;
         }
 
         private void FillGoogleWorkdays(GoogleCalendarUpdateResult calendarUpdateResult)
@@ -214,30 +219,6 @@ namespace CalendarTableAddIn
             selection.MoveEnd(Word.WdUnits.wdTable, 1);
             selection.MoveRight(Count: 1);
             selection.TypeText("\n");
-        }
-
-        private int SetFirstDayToFillFrom(string dayName)
-        {
-            switch (dayName)
-            {
-                case "Sunday":
-                    return 1;
-                case "Monday":
-                    return 2;
-                case "Tuesday":
-                    return 3;
-                case "Wednesday":
-                    return 4;
-                case "Thursday":
-                    return 5;
-                case "Friday":
-                    return 6;
-                case "Saturday":
-                    return 7;
-
-                default:
-                    return 0;
-            }
         }
 
         private void SetBorders(Word.Table table)
