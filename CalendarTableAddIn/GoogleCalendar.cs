@@ -53,12 +53,13 @@ namespace CalendarTableAddIn
                     // eg. Extra Work Day for December 15
                     if (eventItem.Summary.Contains("Extra Work Day"))
                     {
-                        try
+                        if (eventItem.Start.DateTime.HasValue)
                         {
-                            if (eventItem.Start.DateTime.HasValue)
-                            {
-                                var eventDate = eventItem.Start.DateTime.Value;
+                            var eventDate = eventItem.Start.DateTime.Value;
+                            result.Workdays.Add(eventDate);
 
+                            try
+                            {
                                 var summary = eventItem.Summary.Split(' ');
 
                                 var monthName = summary[summary.Length - 1];
@@ -72,12 +73,24 @@ namespace CalendarTableAddIn
                                 }
 
                                 result.Holidays.Add(holiday);
-
-                                // Adding the eventDay because its a workday.
-                                result.Workdays.Add(eventDate);
                             }
+                            catch { }
                         }
-                        catch { }
+                        else if (DateTime.TryParse(eventItem.Start.Date, out var eventDate))
+                        {
+                            result.Workdays.Add(eventDate);
+                        }
+                    }
+                    else if(eventItem.Summary.IndexOf("holiday", StringComparison.OrdinalIgnoreCase) >= 0)
+                    {
+                        if (eventItem.Start.DateTime.HasValue)
+                        {
+                            result.Holidays.Add(eventItem.Start.DateTime.Value);
+                        }
+                        else if (DateTime.TryParse(eventItem.Start.Date, out var eventDate))
+                        {
+                            result.Holidays.Add(eventDate);
+                        }
                     }
                 }
             }

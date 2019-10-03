@@ -33,7 +33,7 @@
     <PublishUrl>C:\Users\r.kunkli\Projects\publish\</PublishUrl>
     <InstallUrl />
     <TargetCulture>en</TargetCulture>
-    <ApplicationVersion>2.0.0.17</ApplicationVersion>
+    <ApplicationVersion>2.0.0.19</ApplicationVersion>
     <AutoIncrementApplicationRevision>true</AutoIncrementApplicationRevision>
     <UpdateEnabled>false</UpdateEnabled>
     <UpdateInterval>0</UpdateInterval>
