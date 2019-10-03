@@ -1,13 +1,13 @@
 ﻿namespace CalendarTableAddIn
 {
-    partial class Ribbon : Microsoft.Office.Tools.Ribbon.RibbonBase
+    partial class CalendarTableRibbon : Microsoft.Office.Tools.Ribbon.RibbonBase
     {
         /// <summary>
         /// Required designer variable.
         /// </summary>
         private System.ComponentModel.IContainer components = null;
 
-        public Ribbon()
+        public CalendarTableRibbon()
             : base(Globals.Factory.GetRibbonFactory())
         {
             InitializeComponent();
@@ -34,6 +34,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            Microsoft.Office.Tools.Ribbon.RibbonDialogLauncher ribbonDialogLauncherImpl1 = this.Factory.CreateRibbonDialogLauncher();
             this.TabInsertCalendarTable = this.Factory.CreateRibbonTab();
             this.GroupInsertCalendarTables = this.Factory.CreateRibbonGroup();
             this.ButtonInsertCalendarTable = this.Factory.CreateRibbonButton();
@@ -51,16 +52,19 @@
             // 
             // GroupInsertCalendarTables
             // 
+            ribbonDialogLauncherImpl1.ScreenTip = "Select Month";
+            this.GroupInsertCalendarTables.DialogLauncher = ribbonDialogLauncherImpl1;
             this.GroupInsertCalendarTables.Items.Add(this.ButtonInsertCalendarTable);
-            this.GroupInsertCalendarTables.Label = "Add Ins";
+            this.GroupInsertCalendarTables.Label = "Calendar Table";
             this.GroupInsertCalendarTables.Name = "GroupInsertCalendarTables";
             this.GroupInsertCalendarTables.Position = this.Factory.RibbonPosition.AfterOfficeId("GroupInsertTables");
+            this.GroupInsertCalendarTables.DialogLauncherClick += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.GroupInsertCalendarTables_DialogLauncherClick);
             // 
             // ButtonInsertCalendarTable
             // 
             this.ButtonInsertCalendarTable.ControlSize = Microsoft.Office.Core.RibbonControlSize.RibbonControlSizeLarge;
             this.ButtonInsertCalendarTable.Image = global::CalendarTableAddIn.Properties.Resources.icon;
-            this.ButtonInsertCalendarTable.Label = "Calendar Table";
+            this.ButtonInsertCalendarTable.Label = "Current Month";
             this.ButtonInsertCalendarTable.Name = "ButtonInsertCalendarTable";
             this.ButtonInsertCalendarTable.ShowImage = true;
             this.ButtonInsertCalendarTable.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.button1_Click);
@@ -88,9 +92,9 @@
 
     partial class ThisRibbonCollection
     {
-        internal Ribbon Ribbon
+        internal CalendarTableRibbon Ribbon
         {
-            get { return this.GetRibbon<Ribbon>(); }
+            get { return this.GetRibbon<CalendarTableRibbon>(); }
         }
     }
 }
