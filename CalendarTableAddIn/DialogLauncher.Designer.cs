@@ -34,23 +34,28 @@
             // 
             // monthPicker1
             // 
-            this.monthPicker1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.monthPicker1.Location = new System.Drawing.Point(0, 0);
+            this.monthPicker1.Location = new System.Drawing.Point(-2, -10);
+            this.monthPicker1.MaximumSize = new System.Drawing.Size(227, 162);
             this.monthPicker1.Name = "monthPicker1";
             this.monthPicker1.ShowToday = false;
             this.monthPicker1.ShowTodayCircle = false;
             this.monthPicker1.TabIndex = 0;
+            this.monthPicker1.TabStop = false;
             // 
             // DialogLauncher
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.AutoSize = true;
-            this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.ClientSize = new System.Drawing.Size(230, 161);
+            this.BackColor = System.Drawing.SystemColors.Control;
+            this.ClientSize = new System.Drawing.Size(223, 141);
             this.Controls.Add(this.monthPicker1);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
+            this.MaximizeBox = false;
+            this.MaximumSize = new System.Drawing.Size(239, 180);
             this.Name = "DialogLauncher";
+            this.ShowIcon = false;
+            this.ShowInTaskbar = false;
+            this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
             this.StartPosition = System.Windows.Forms.FormStartPosition.WindowsDefaultBounds;
             this.Text = "Pick a month";
             this.ResumeLayout(false);

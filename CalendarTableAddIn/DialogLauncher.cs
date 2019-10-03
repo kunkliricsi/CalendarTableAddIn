@@ -1,24 +1,29 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
 namespace CalendarTableAddIn
 {
     public partial class DialogLauncher : Form
     {
-        private DateTime _selectedMonth;
+        [DllImport("user32.dll")]
+        private static extern IntPtr SendMessage(IntPtr hWnd, int wMsg, IntPtr wParam, IntPtr lParam);
 
-        public DialogLauncher(ref DateTime selectedMonth)
+        private const int MCM_SETCURRENTVIEW = 0x1000 + 32;
+
+        public DialogLauncher(Action<DateTime> dateTimeSetter)
         {
             InitializeComponent();
+            monthPicker1.Initialize(this, dateTimeSetter);
 
-            _selectedMonth = selectedMonth;
+            Load += DialogLauncher_Load;
+        }
+
+        private void DialogLauncher_Load(object sender, EventArgs e)
+        {
+            monthPicker1.SetDate(DateTime.Now);
+            SendMessage(monthPicker1.Handle, MCM_SETCURRENTVIEW, IntPtr.Zero, (IntPtr)1);
+            SetDesktopLocation(Cursor.Position.X, Cursor.Position.Y);
         }
     }
 }

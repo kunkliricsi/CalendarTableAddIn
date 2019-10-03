@@ -16,7 +16,7 @@ namespace CalendarTableAddIn
 
         private void Ribbon_Load(object sender, RibbonUIEventArgs e)
         {
-            _dialogLauncher = new DialogLauncher(ref _selectedMonth);
+            _dialogLauncher = new DialogLauncher(d => _selectedMonth = d);
 
             var app = Globals.ThisAddIn.Application;
             var inspector = app.ActiveInspector();

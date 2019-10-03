@@ -46,6 +46,8 @@ namespace CalendarTableAddIn
         {
             try
             {
+                _daysToCells.Clear();
+
                 var currentSelection = _document.Application.Selection.Range;
 
                 _table = _document.Tables.Add(
@@ -82,10 +84,11 @@ namespace CalendarTableAddIn
 
         private void MakeFirstRow(DateTime month)
         {
+            var year = month.ToString("yyyy");
             var monthNumber = month.ToString("MM");
-            var monnth = month.ToString("MMMM");
+            var monthString = month.ToString("MMMM");
 
-            _table.Rows[1].Range.Text = string.Format("{0} ({1})", monnth, monthNumber);
+            _table.Rows[1].Range.Text = string.Format("{0} {1} ({2})", year, monthString, monthNumber);
             _table.Rows[1].Range.Font.Color = Word.WdColor.wdColorWhite;
             _table.Rows[1].Cells.Merge();
             _table.Rows[1].Shading.BackgroundPatternColor = _randomColor;
