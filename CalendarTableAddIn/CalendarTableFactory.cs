@@ -47,6 +47,7 @@ namespace CalendarTableAddIn
             try
             {
                 _daysToCells.Clear();
+                _rows = 8;
 
                 var currentSelection = _document.Application.Selection.Range;
 
@@ -111,17 +112,31 @@ namespace CalendarTableAddIn
         private void FillTable(DateTime month)
         {
             var firstDay = new DateTime(month.Year, month.Month, 1);
-            var daysToRemoveFromFirstDay = GetDaysToRemove(firstDay);
 
-            var currentDay = firstDay.AddDays(-daysToRemoveFromFirstDay);
-            var firstDayOfNextMonth = firstDay.AddMonths(1);
-            var daysToRemoveFromLastDay = GetDaysToRemove(firstDayOfNextMonth);
-            if (daysToRemoveFromLastDay <= 2)
+            var currentDay = firstDay;
+            while (DateSystem.IsPublicHoliday(currentDay, CountryCode.HU) ||
+                DateSystem.IsWeekend(currentDay, CountryCode.HU))
             {
-                firstDayOfNextMonth = firstDayOfNextMonth.AddDays(-daysToRemoveFromLastDay);
+                currentDay = currentDay.AddDays(1);
             }
 
-            var currentMonthEnded = false;
+            while (currentDay.DayOfWeek != DayOfWeek.Saturday)
+            {
+                currentDay = currentDay.AddDays(-1);
+            }
+
+            var lastDay = firstDay.AddMonths(1);
+            lastDay = lastDay.AddDays(-1);
+            while (DateSystem.IsPublicHoliday(lastDay, CountryCode.HU) ||
+                DateSystem.IsWeekend(lastDay, CountryCode.HU))
+            {
+                lastDay = lastDay.AddDays(-1);
+            }
+
+            while (lastDay.DayOfWeek != DayOfWeek.Saturday)
+            {
+                lastDay = lastDay.AddDays(1);
+            }
 
             for (int r = 3; r <= _rows; r++)
             {
@@ -138,33 +153,27 @@ namespace CalendarTableAddIn
                         _table.Cell(r, c).Range.Font.Color = Word.WdColor.wdColorGray25;
                     }
 
-                    if (!currentMonthEnded && currentDay >= firstDayOfNextMonth)
+                    if (lastDay == currentDay)
                     {
-                        currentMonthEnded = true;
+                        DeleteEmptyRows();
+                        return;
                     }
-                }
-
-                if (currentMonthEnded)
-                {
-                    DeleteEmptyRows(r);
-                    return;
                 }
             }
         }
 
-        private void DeleteEmptyRows(int fromRow)
+        private void DeleteEmptyRows()
         {
-            for (int i = _rows; i > fromRow; i--)
+            for (int i = _rows; i > 2; i--)
+            {
+                if (!string.IsNullOrWhiteSpace(_table.Cell(i, 1).Range.Text.Trim('\r', '\a')))
+                {
+                    _rows = i;
+                    break;
+                }
+
                 _table.Rows[i].Delete();
-
-            _rows = fromRow;
-        }
-
-        private int GetDaysToRemove(DateTime date)
-        {
-            var dayOfWeek = (int)date.DayOfWeek;
-
-            return dayOfWeek == 6 ? 0 : ++dayOfWeek;
+            }
         }
 
         private async Task UpdateCalendarAsync(Task<CalendarUpdateResult> calendarUpdateTask)
